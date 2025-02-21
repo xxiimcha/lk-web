@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { useRouter } from "next/navigation"; 
+import { useRouter } from "next/navigation";
 import Sidebar from "./Sidebar";
 import { Layout as AntLayout, Typography, Space, Dropdown, MenuProps, Spin, message } from "antd";
 import { UserOutlined, LogoutOutlined } from "@ant-design/icons";
@@ -15,8 +15,8 @@ const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [profileModalVisible, setProfileModalVisible] = useState(false);
   const [user, setUser] = useState<{ name: string; email: string; role: string } | null>(null);
   const [loading, setLoading] = useState(true);
-  
-  const router = useRouter(); 
+
+  const router = useRouter();
 
   useEffect(() => {
     const fetchUser = async () => {
@@ -24,7 +24,7 @@ const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
 
       if (!token) {
         console.warn("No authentication token found. Redirecting to login...");
-        router.push("/"); 
+        router.push("/");
         return;
       }
 
@@ -47,13 +47,13 @@ const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
     };
 
     fetchUser();
-  }, [router]); 
+  }, [router]);
 
   const handleLogout = () => {
-    localStorage.removeItem("token"); 
-    setUser(null); 
+    localStorage.removeItem("token");
+    setUser(null);
     message.success("Logged out successfully!");
-    router.push("/"); 
+    router.push("/");
   };
 
   const handleProfileUpdate = (updatedUser: { name: string; email: string }) => {
@@ -68,7 +68,7 @@ const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
     setProfileModalVisible(true);
   };
 
-  // ✅ Corrected Dropdown Menu Items for Ant Design v5
+  // ✅ Fixed Dropdown Menu for Ant Design v5
   const userMenuItems: MenuProps["items"] = [
     {
       key: "profile",
@@ -89,13 +89,63 @@ const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   ];
 
   return (
-    <AntLayout style={{ minHeight: "100vh", backgroundColor: "#f4f4f4" }}>
-      <Sider collapsible collapsed={collapsed} onCollapse={setCollapsed} width={250} style={{ height: "100vh", background: "#004d1a", position: "fixed", left: 0, top: 0, bottom: 0 }}>
+    <AntLayout
+      style={{
+        minHeight: "100vh",
+        backgroundImage: `url('/background.jpg')`, // ✅ Add your image path
+        backgroundSize: "cover",
+        backgroundPosition: "center",
+        backgroundRepeat: "no-repeat",
+        position: "relative",
+      }}
+    >
+      {/* ✅ Semi-transparent Overlay for Readability */}
+      <div
+        style={{
+          position: "absolute",
+          top: 0,
+          left: 0,
+          width: "100%",
+          height: "100%",
+          backgroundColor: "rgba(255, 255, 255, 0.7)", // ✅ Adjust opacity here
+          backdropFilter: "blur(10px)", // ✅ Blur effect
+          zIndex: 1, // ✅ Keeps it above background but below content
+        }}
+      ></div>
+
+      <Sider
+        collapsible
+        collapsed={collapsed}
+        onCollapse={setCollapsed}
+        width={250}
+        style={{
+          height: "100vh",
+          background: "rgba(0, 77, 26, 0.9)", // ✅ Semi-transparent sidebar
+          backdropFilter: "blur(8px)",
+          position: "fixed",
+          left: 0,
+          top: 0,
+          bottom: 0,
+          zIndex: 2,
+          transition: "all 0.3s ease-in-out",
+        }}
+      >
         <Sidebar />
       </Sider>
 
-      <AntLayout style={{ marginLeft: collapsed ? 80 : 250 }}>
-        <Header style={{ backgroundColor: "#ffffff", padding: "0 24px", display: "flex", justifyContent: "space-between", alignItems: "center", borderBottom: "1px solid #ddd" }}>
+      {/* ✅ Dynamic marginLeft to adjust content width when sidebar is collapsed */}
+      <AntLayout style={{ marginLeft: collapsed ? 80 : 260, transition: "all 0.3s ease-in-out", zIndex: 3 }}>
+        <Header
+          style={{
+            backgroundColor: "rgba(255, 255, 255, 0.8)", // ✅ Slight transparency
+            backdropFilter: "blur(6px)",
+            padding: "0 24px",
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
+            borderBottom: "1px solid rgba(0, 0, 0, 0.1)",
+          }}
+        >
           <Title level={4} style={{ margin: 0, color: "#004d1a" }}>Admin Panel</Title>
 
           <Space size="large">
@@ -112,18 +162,22 @@ const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
           </Space>
         </Header>
 
-        <Content style={{ padding: "24px", margin: "24px 16px", backgroundColor: "#fff" }}>
+        <Content
+          style={{
+            padding: "24px",
+            margin: "24px 16px",
+            backgroundColor: "rgba(255, 255, 255, 0.9)", // ✅ Glassmorphism effect
+            backdropFilter: "blur(10px)",
+            borderRadius: "10px",
+            transition: "all 0.3s ease-in-out",
+            position: "relative",
+            zIndex: 3, // ✅ Ensures content is above the background
+          }}
+        >
           {children}
         </Content>
 
-        {user && (
-          <ProfileModal 
-            visible={profileModalVisible} 
-            onClose={() => setProfileModalVisible(false)} 
-            user={user} 
-            onUpdate={handleProfileUpdate} 
-          />
-        )}
+        {user && <ProfileModal visible={profileModalVisible} onClose={() => setProfileModalVisible(false)} user={user} onUpdate={handleProfileUpdate} />}
       </AntLayout>
     </AntLayout>
   );

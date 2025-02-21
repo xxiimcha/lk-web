@@ -72,121 +72,145 @@ const Dashboard = () => {
       title: "Total Requests",
       value: data.totalRequests,
       icon: <FiFileText size={40} />,
-      bg: "linear-gradient(135deg, #1890ff 30%, #40a9ff 100%)",
+      bg: "rgba(24, 144, 255, 0.8)",
       glow: "rgba(24, 144, 255, 0.4)",
     },
     {
       title: "Pending Requests",
       value: data.pendingRequests,
       icon: <FiClock size={40} />,
-      bg: "linear-gradient(135deg, #faad14 30%, #fadb14 100%)",
+      bg: "rgba(250, 173, 20, 0.8)",
       glow: "rgba(250, 173, 20, 0.4)",
     },
     {
       title: "Approved Requests",
       value: data.approvedRequests,
       icon: <FiCheckCircle size={40} />,
-      bg: "linear-gradient(135deg, #52c41a 30%, #73d13d 100%)",
+      bg: "rgba(82, 196, 26, 0.8)",
       glow: "rgba(82, 196, 26, 0.4)",
     },
     {
       title: "Released Requests",
       value: data.releasedRequests,
       icon: <FiTag size={40} />,
-      bg: "linear-gradient(135deg, #722ed1 30%, #9254de 100%)",
+      bg: "rgba(114, 46, 209, 0.8)", 
       glow: "rgba(114, 46, 209, 0.4)",
     },
     {
       title: "Total Users",
       value: data.totalUsers,
       icon: <FiUsers size={40} />,
-      bg: "linear-gradient(135deg, #fa541c 30%, #ff7a45 100%)",
+      bg: "rgba(250, 84, 28, 0.8)",
       glow: "rgba(250, 84, 28, 0.4)",
     },
   ];
 
   return (
     <Layout>
-      {loading ? (
-        <div style={{ textAlign: "center", marginTop: "20px" }}>
-          <Spin size="large" />
-        </div>
-      ) : (
-        <Row gutter={[16, 16]} style={{ marginTop: "20px", padding: "20px" }}>
-          {cardsData.map((card, index) => (
-            <Col xs={24} sm={12} md={6} key={index}>
-              <motion.div
-                variants={cardVariants}
-                initial="hidden"
-                animate="visible"
-                whileHover={{ scale: 1.07 }}
-                whileTap={{ scale: 0.95 }}
-                transition={{ duration: 0.3 }}
-                style={{
-                  borderRadius: "15px",
-                  boxShadow: `0px 0px 15px ${card.glow}`,
-                  overflow: "hidden",
-                  textAlign: "center",
-                  background: "rgba(255, 255, 255, 0.1)",
-                  backdropFilter: "blur(10px)",
-                  border: "1px solid rgba(255, 255, 255, 0.3)",
-                  padding: "15px",
-                }}
-              >
-                <Card
-                  bordered={false}
+      <div
+        style={{
+          minHeight: "100vh",
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
+          justifyContent: "center",
+          padding: "20px",
+          backgroundImage: "url('/background.jpg')", 
+          backgroundSize: "cover",
+          backgroundPosition: "center",
+          backgroundRepeat: "no-repeat",
+          position: "relative",
+        }}
+      >
+        {/* */}
+        <div
+          style={{
+            position: "absolute",
+            top: 0,
+            left: 0,
+            width: "100%",
+            height: "100%",
+            backgroundColor: "rgba(255, 255, 255, 0.6)", 
+            backdropFilter: "blur(8px)",
+            zIndex: 1,
+          }}
+        ></div>
+
+        {loading ? (
+          <div style={{ textAlign: "center", marginTop: "20px", position: "relative", zIndex: 2 }}>
+            <Spin size="large" />
+          </div>
+        ) : (
+          <Row gutter={[16, 16]} style={{ marginTop: "20px", padding: "20px", position: "relative", zIndex: 2 }}>
+            {cardsData.map((card, index) => (
+              <Col xs={24} sm={12} md={6} key={index}>
+                <motion.div
+                  variants={cardVariants}
+                  initial="hidden"
+                  animate="visible"
+                  whileHover={{ scale: 1.07 }}
+                  whileTap={{ scale: 0.95 }}
+                  transition={{ duration: 0.3 }}
                   style={{
-                    background: card.bg,
-                    borderRadius: "12px",
-                    color: "#fff",
-                    padding: "20px",
+                    borderRadius: "15px",
+                    boxShadow: `0px 0px 15px ${card.glow}`,
+                    overflow: "hidden",
                     textAlign: "center",
-                    fontWeight: "bold",
-                    display: "flex",
-                    flexDirection: "column",
-                    alignItems: "center",
+                    backdropFilter: "blur(10px)",
+                    border: "1px solid rgba(255, 255, 255, 0.3)",
+                    padding: "15px",
                   }}
                 >
-                  <div
+                  <Card
+                    bordered={false}
                     style={{
+                      background: card.bg,
+                      borderRadius: "12px",
+                      color: "#fff",
+                      padding: "20px",
+                      textAlign: "center",
+                      fontWeight: "bold",
                       display: "flex",
                       flexDirection: "column",
                       alignItems: "center",
-                      gap: "10px",
                     }}
                   >
-                    <motion.div
-                      animate={{ rotate: 360 }}
-                      transition={{ duration: 4, repeat: Infinity, ease: "linear" }}
+                    <div
+                      style={{
+                        display: "flex",
+                        flexDirection: "column",
+                        alignItems: "center",
+                        gap: "10px",
+                      }}
                     >
                       {card.icon}
-                    </motion.div>
-                    <Statistic
-                      title={
-                        <span
-                          style={{
-                            color: "rgba(255, 255, 255, 0.85)",
-                            fontSize: "16px",
-                            fontWeight: "bold",
-                          }}
-                        >
-                          {card.title}
-                        </span>
-                      }
-                      value={card.value}
-                      valueStyle={{
-                        color: "#fff",
-                        fontSize: "28px",
-                        fontWeight: "bold",
-                      }}
-                    />
-                  </div>
-                </Card>
-              </motion.div>
-            </Col>
-          ))}
-        </Row>
-      )}
+                      <Statistic
+                        title={
+                          <span
+                            style={{
+                              color: "rgba(255, 255, 255, 0.85)",
+                              fontSize: "16px",
+                              fontWeight: "bold",
+                            }}
+                          >
+                            {card.title}
+                          </span>
+                        }
+                        value={card.value}
+                        valueStyle={{
+                          color: "#fff",
+                          fontSize: "28px",
+                          fontWeight: "bold",
+                        }}
+                      />
+                    </div>
+                  </Card>
+                </motion.div>
+              </Col>
+            ))}
+          </Row>
+        )}
+      </div>
     </Layout>
   );
 };

@@ -122,7 +122,7 @@ const Requests = () => {
             </Button>
           ) : record.status === "rejected" ? (
             <Button disabled>Rejected</Button>
-          ) : record.status !== "released" ? ( // Hide Approve/Reject when status is "Released"
+          ) : record.status !== "released" ? (
             <>
               <Button type="primary" onClick={() => updateRequestStatus(record._id, "approved")}>
                 Approve
@@ -141,8 +141,41 @@ const Requests = () => {
 
   return (
     <Layout>
-      <div className="p-6 bg-gray-50 min-h-screen">
-        <div className="bg-white shadow-md rounded-xl p-6">
+      <div
+        style={{
+          minHeight: "100vh",
+          padding: "20px",
+          backgroundImage: "url('/background.jpg')",
+          backgroundSize: "cover",
+          backgroundPosition: "center",
+          backgroundRepeat: "no-repeat",
+          position: "relative",
+        }}
+      >
+        {/* ✅ Darker overlay for readability */}
+        <div
+          style={{
+            position: "absolute",
+            top: 0,
+            left: 0,
+            width: "100%",
+            height: "100%",
+            backgroundColor: "rgba(0, 0, 0, 0.3)", // ✅ Darker to contrast text
+            backdropFilter: "blur(6px)", // ✅ Adds soft blur effect
+            zIndex: 1,
+          }}
+        ></div>
+
+        <div
+          style={{
+            backgroundColor: "rgba(255, 255, 255, 0.9)", // ✅ More opacity for content readability
+            boxShadow: "0 5px 15px rgba(0, 0, 0, 0.2)",
+            borderRadius: "10px",
+            padding: "20px",
+            position: "relative",
+            zIndex: 2,
+          }}
+        >
           <h1 className="text-3xl font-bold text-gray-900 mb-4">Requests</h1>
           <p className="text-gray-600 mb-6">Manage all seed requests submitted by users.</p>
 
@@ -182,12 +215,6 @@ const Requests = () => {
             )}
           </Descriptions>
         )}
-      </Modal>
-
-      {/* Reject Modal */}
-      <Modal title="Reject Request" open={modalType === "reject"} onCancel={closeModal} onOk={() => updateRequestStatus(selectedRequest?._id || "", "rejected", rejectReason)} okButtonProps={{ disabled: !rejectReason.trim() }}>
-        <p>Enter a reason for rejection:</p>
-        <Input.TextArea rows={4} value={rejectReason} onChange={(e) => setRejectReason(e.target.value)} placeholder="Provide a detailed rejection reason..." />
       </Modal>
     </Layout>
   );

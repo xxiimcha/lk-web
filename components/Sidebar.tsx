@@ -39,13 +39,13 @@ const Sidebar = () => {
       width={260}
       style={{
         height: "100vh",
-        background: "rgba(0, 77, 26, 0.85)", // Glassmorphism effect
-        backdropFilter: "blur(10px)", // Smooth blur
+        background: "rgba(0, 77, 26, 0.9)", // Stronger contrast for sidebar
+        backdropFilter: "blur(12px)", // Better blur effect
         position: "fixed",
         left: 0,
         top: 0,
         bottom: 0,
-        boxShadow: "2px 0 12px rgba(0, 0, 0, 0.2)",
+        boxShadow: "2px 0 12px rgba(0, 0, 0, 0.3)",
         overflowY: "auto",
         transition: "all 0.3s ease-in-out",
       }}
@@ -66,13 +66,7 @@ const Sidebar = () => {
       >
         {!collapsed && (
           <>
-            <Image
-              src="/logo.png"
-              alt="Luntiang Kamay Logo"
-              width={60}
-              height={60}
-              className="animate-fade-in"
-            />
+            <Image src="/logo.png" alt="Luntiang Kamay Logo" width={50} height={50} />
             <h2 style={{ margin: "10px 0 0 0", fontSize: "16px", fontWeight: "600" }}>
               Luntiang Kamay
             </h2>
@@ -110,26 +104,26 @@ const Sidebar = () => {
           fontWeight: "500",
           paddingTop: "10px",
         }}
-        className="custom-menu"
       />
 
       {/* Sidebar Footer */}
-      <div
-        style={{
-          position: "absolute",
-          bottom: "20px",
-          width: "100%",
-          textAlign: "center",
-          color: "rgba(255, 255, 255, 0.7)",
-          fontSize: "12px",
-          borderTop: "1px solid rgba(255, 255, 255, 0.3)",
-          paddingTop: "10px",
-          opacity: collapsed ? 0 : 1,
-          transition: "opacity 0.3s ease-in-out",
-        }}
-      >
-        <span className="animate-fade-in">© 2024 Luntiang Kamay</span>
-      </div>
+      {!collapsed && (
+        <div
+          style={{
+            position: "absolute",
+            bottom: "20px",
+            width: "100%",
+            textAlign: "center",
+            color: "rgba(255, 255, 255, 0.7)",
+            fontSize: "12px",
+            borderTop: "1px solid rgba(255, 255, 255, 0.3)",
+            paddingTop: "10px",
+            transition: "opacity 0.3s ease-in-out",
+          }}
+        >
+          © 2024 Luntiang Kamay
+        </div>
+      )}
     </Sider>
   );
 };
