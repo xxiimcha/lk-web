@@ -1,10 +1,10 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
+import { useRouter } from "next/navigation"; 
 import Sidebar from "./Sidebar";
-import { Layout as AntLayout, Button, Typography, Space, Dropdown, Menu, Spin, message } from "antd";
-import { UserOutlined, LogoutOutlined, SettingOutlined } from "@ant-design/icons";
-import Link from "next/link";
+import { Layout as AntLayout, Typography, Space, Dropdown, MenuProps, Spin, message } from "antd";
+import { UserOutlined, LogoutOutlined } from "@ant-design/icons";
 import ProfileModal from "./ProfileModal";
 
 const { Header, Content, Sider } = AntLayout;
@@ -15,25 +15,28 @@ const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [profileModalVisible, setProfileModalVisible] = useState(false);
   const [user, setUser] = useState<{ name: string; email: string; role: string } | null>(null);
   const [loading, setLoading] = useState(true);
+  
+  const router = useRouter(); 
 
   useEffect(() => {
     const fetchUser = async () => {
       const token = localStorage.getItem("token");
-  
+
       if (!token) {
         console.warn("No authentication token found. Redirecting to login...");
+        router.push("/"); 
         return;
       }
-  
+
       try {
         const response = await fetch("/api/auth/me", {
           headers: { Authorization: `Bearer ${token}` },
         });
-  
+
         if (!response.ok) {
           throw new Error("Failed to fetch user data");
         }
-  
+
         const userData = await response.json();
         setUser(userData);
       } catch (error) {
@@ -42,50 +45,48 @@ const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
         setLoading(false);
       }
     };
-  
+
     fetchUser();
-  }, []);  
+  }, [router]); 
 
   const handleLogout = () => {
-    localStorage.removeItem("token"); // Remove token on logout
-    setUser(null);
-    console.log("User logged out");
+    localStorage.removeItem("token"); 
+    setUser(null); 
+    message.success("Logged out successfully!");
+    router.push("/"); 
   };
 
   const handleProfileUpdate = (updatedUser: { name: string; email: string }) => {
     setUser((prevUser) => {
-      if (!prevUser) return null; // Ensure `prevUser` exists before updating
-      return { ...prevUser, ...updatedUser }; // Keep `role` while updating name & email
+      if (!prevUser) return null;
+      return { ...prevUser, ...updatedUser };
     });
     message.success("Profile updated successfully!");
-  };  
+  };
 
   const handleOpenProfileModal = () => {
     setProfileModalVisible(true);
-  };  
+  };
 
-  const userMenu = (
-    <Menu
-      items={[
-        {
-          key: "profile",
-          icon: <UserOutlined />,
-          label: "Edit Profile",
-          onClick: handleOpenProfileModal, // ✅ Use a function instead of direct state update
-        },
-        {
-          type: "divider",
-        },
-        {
-          key: "logout",
-          icon: <LogoutOutlined />,
-          danger: true,
-          label: "Logout",
-          onClick: handleLogout,
-        },
-      ]}
-    />
-  );  
+  // ✅ Corrected Dropdown Menu Items for Ant Design v5
+  const userMenuItems: MenuProps["items"] = [
+    {
+      key: "profile",
+      icon: <UserOutlined />,
+      label: "Edit Profile",
+      onClick: handleOpenProfileModal,
+    },
+    {
+      type: "divider",
+    },
+    {
+      key: "logout",
+      icon: <LogoutOutlined />,
+      danger: true,
+      label: "Logout",
+      onClick: handleLogout,
+    },
+  ];
 
   return (
     <AntLayout style={{ minHeight: "100vh", backgroundColor: "#f4f4f4" }}>
@@ -98,8 +99,10 @@ const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
           <Title level={4} style={{ margin: 0, color: "#004d1a" }}>Admin Panel</Title>
 
           <Space size="large">
-            {loading ? <Spin size="small" /> : (
-              <Dropdown overlay={userMenu} trigger={["click"]}>
+            {loading ? (
+              <Spin size="small" />
+            ) : (
+              <Dropdown menu={{ items: userMenuItems }} trigger={["click"]}>
                 <Space style={{ cursor: "pointer" }}>
                   <UserOutlined style={{ fontSize: "20px" }} />
                   <span style={{ fontSize: "14px", fontWeight: 500, color: "#333" }}>{user?.name}</span>
@@ -114,7 +117,12 @@ const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
         </Content>
 
         {user && (
-          <ProfileModal visible={profileModalVisible} onClose={() => setProfileModalVisible(false)} user={user} onUpdate={handleProfileUpdate} />
+          <ProfileModal 
+            visible={profileModalVisible} 
+            onClose={() => setProfileModalVisible(false)} 
+            user={user} 
+            onUpdate={handleProfileUpdate} 
+          />
         )}
       </AntLayout>
     </AntLayout>
