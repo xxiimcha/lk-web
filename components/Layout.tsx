@@ -1,25 +1,69 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Sidebar from "./Sidebar";
-import { Layout as AntLayout, Avatar, Button, Typography, Space, Dropdown, Menu } from "antd";
+import { Layout as AntLayout, Button, Typography, Space, Dropdown, Menu, Spin, message } from "antd";
 import { UserOutlined, LogoutOutlined, SettingOutlined } from "@ant-design/icons";
 import Link from "next/link";
+import ProfileModal from "./ProfileModal";
 
 const { Header, Content, Sider } = AntLayout;
 const { Title } = Typography;
 
 const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [collapsed, setCollapsed] = useState(false);
+  const [profileModalVisible, setProfileModalVisible] = useState(false);
+  const [user, setUser] = useState<{ name: string; email: string; role: string } | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchUser = async () => {
+      const token = localStorage.getItem("token");
+  
+      if (!token) {
+        console.warn("No authentication token found. Redirecting to login...");
+        return;
+      }
+  
+      try {
+        const response = await fetch("/api/auth/me", {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+  
+        if (!response.ok) {
+          throw new Error("Failed to fetch user data");
+        }
+  
+        const userData = await response.json();
+        setUser(userData);
+      } catch (error) {
+        console.error("Error fetching user data:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+  
+    fetchUser();
+  }, []);  
 
   const handleLogout = () => {
+    localStorage.removeItem("token"); // Remove token on logout
+    setUser(null);
     console.log("User logged out");
   };
 
+  const handleProfileUpdate = (updatedUser: { name: string; email: string }) => {
+    setUser((prevUser) => {
+      if (!prevUser) return null; // Ensure `prevUser` exists before updating
+      return { ...prevUser, ...updatedUser }; // Keep `role` while updating name & email
+    });
+    message.success("Profile updated successfully!");
+  };  
+
   const userMenu = (
     <Menu>
-      <Menu.Item key="profile" icon={<UserOutlined />}>
-        <Link href="/pages/profile">Profile</Link>
+      <Menu.Item key="profile" icon={<UserOutlined />} onClick={() => setProfileModalVisible(true)}>
+        Edit Profile
       </Menu.Item>
       <Menu.Item key="settings" icon={<SettingOutlined />}>
         <Link href="/pages/settings">Settings</Link>
@@ -33,72 +77,33 @@ const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
 
   return (
     <AntLayout style={{ minHeight: "100vh", backgroundColor: "#f4f4f4" }}>
-      {/* Sidebar (Collapsible for Responsive Design) */}
-      <Sider
-        collapsible
-        collapsed={collapsed}
-        onCollapse={setCollapsed}
-        width={250}
-        style={{
-          height: "100vh",
-          background: "rgba(0, 77, 26, 0.85)", // Glassmorphism effect
-          backdropFilter: "blur(10px)", // Smooth blur effect
-          position: "fixed",
-          left: 0,
-          top: 0,
-          bottom: 0,
-          boxShadow: "2px 0 12px rgba(0, 0, 0, 0.2)",
-          transition: "all 0.3s ease-in-out",
-        }}
-      >
+      <Sider collapsible collapsed={collapsed} onCollapse={setCollapsed} width={250} style={{ height: "100vh", background: "#004d1a", position: "fixed", left: 0, top: 0, bottom: 0 }}>
         <Sidebar />
       </Sider>
 
-      {/* Main Layout for Header & Content */}
-      <AntLayout style={{ marginLeft: collapsed ? 80 : 250, transition: "margin 0.3s ease-in-out" }}>
-        {/* Header */}
-        <Header
-          style={{
-            backgroundColor: "#ffffff",
-            padding: "0 24px",
-            display: "flex",
-            justifyContent: "space-between",
-            alignItems: "center",
-            borderBottom: "1px solid #ddd",
-            boxShadow: "0px 2px 10px rgba(0, 0, 0, 0.05)",
-            position: "sticky",
-            top: 0,
-            zIndex: 1000,
-          }}
-        >
+      <AntLayout style={{ marginLeft: collapsed ? 80 : 250 }}>
+        <Header style={{ backgroundColor: "#ffffff", padding: "0 24px", display: "flex", justifyContent: "space-between", alignItems: "center", borderBottom: "1px solid #ddd" }}>
           <Title level={4} style={{ margin: 0, color: "#004d1a" }}>Admin Panel</Title>
 
           <Space size="large">
-            {/* User Profile Dropdown */}
-            <Dropdown overlay={userMenu} trigger={["click"]}>
-              <Space style={{ cursor: "pointer" }}>
-                <Avatar size="large" icon={<UserOutlined />} />
-                <span style={{ fontSize: "14px", fontWeight: 500, color: "#333" }}>Admin</span>
-              </Space>
-            </Dropdown>
+            {loading ? <Spin size="small" /> : (
+              <Dropdown overlay={userMenu} trigger={["click"]}>
+                <Space style={{ cursor: "pointer" }}>
+                  <UserOutlined style={{ fontSize: "20px" }} />
+                  <span style={{ fontSize: "14px", fontWeight: 500, color: "#333" }}>{user?.name}</span>
+                </Space>
+              </Dropdown>
+            )}
           </Space>
         </Header>
 
-        {/* Content Area (Scrollable inside content) */}
-        <Content
-          style={{
-            padding: "24px",
-            margin: "24px 16px",
-            backgroundColor: "#ffffff",
-            minHeight: "calc(100vh - 64px)",
-            overflowY: "auto",
-            borderRadius: "8px",
-            boxShadow: "0px 4px 12px rgba(0, 0, 0, 0.1)",
-            transition: "all 0.3s ease-in-out",
-          }}
-        >
-          {children} {/* Page content renders here */}
+        <Content style={{ padding: "24px", margin: "24px 16px", backgroundColor: "#fff" }}>
+          {children}
         </Content>
+
+        {user && (
+          <ProfileModal visible={profileModalVisible} onClose={() => setProfileModalVisible(false)} user={user} onUpdate={handleProfileUpdate} />
+        )}
       </AntLayout>
     </AntLayout>
   );

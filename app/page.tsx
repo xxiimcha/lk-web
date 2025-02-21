@@ -16,30 +16,33 @@ const Login = () => {
     const { email, password } = values;
     setLoading(true);
     setError("");
-
+  
     try {
       const response = await fetch("/api/auth/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email, password }),
       });
-
+  
       const data = await response.json();
-
+  
       if (!response.ok) {
         setError(data.message || "Something went wrong");
         setLoading(false);
         return;
       }
-
-      // Check if the role is admin
+  
+      if (data.token) {
+        localStorage.setItem("token", data.token);
+      }
+  
       if (data.role !== "admin") {
         setError("Access denied. Admins only.");
+        localStorage.removeItem("token"); // Remove token if not an admin
         setLoading(false);
         return;
       }
-
-      // Redirect to dashboard
+  
       router.push("/pages/dashboard");
     } catch (err) {
       console.error(err);
@@ -47,7 +50,7 @@ const Login = () => {
     } finally {
       setLoading(false);
     }
-  };
+  };  
 
   return (
     <div
