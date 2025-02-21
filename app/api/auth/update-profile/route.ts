@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import jwt from 'jsonwebtoken';
+import bcrypt from 'bcryptjs';
 import dbConnect from '@/lib/mongodb';
 import User from '@/models/User';
 
@@ -18,14 +19,25 @@ export async function PUT(req: Request) {
     const decoded = jwt.verify(token, process.env.JWT_SECRET || 'secretkey') as { userId: string };
 
     const body = await req.json();
-    const { name, email } = body;
+    const { name, email, password } = body;
 
     if (!name || !email) {
       return NextResponse.json({ message: 'Name and email are required' }, { status: 400 });
     }
 
+    // Prepare update object
+    let updateFields: any = { name, email };
+
+    if (password) {
+      if (password.length < 6) {
+        return NextResponse.json({ message: 'Password must be at least 6 characters' }, { status: 400 });
+      }
+      const hashedPassword = await bcrypt.hash(password, 10);
+      updateFields.password = hashedPassword;
+    }
+
     // Update user in the database
-    const updatedUser = await User.findByIdAndUpdate(decoded.userId, { name, email }, { new: true }).select('-password');
+    const updatedUser = await User.findByIdAndUpdate(decoded.userId, updateFields, { new: true }).select('-password');
 
     if (!updatedUser) {
       return NextResponse.json({ message: 'User not found' }, { status: 404 });

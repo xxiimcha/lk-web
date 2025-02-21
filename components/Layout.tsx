@@ -60,20 +60,32 @@ const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
     message.success("Profile updated successfully!");
   };  
 
+  const handleOpenProfileModal = () => {
+    setProfileModalVisible(true);
+  };  
+
   const userMenu = (
-    <Menu>
-      <Menu.Item key="profile" icon={<UserOutlined />} onClick={() => setProfileModalVisible(true)}>
-        Edit Profile
-      </Menu.Item>
-      <Menu.Item key="settings" icon={<SettingOutlined />}>
-        <Link href="/pages/settings">Settings</Link>
-      </Menu.Item>
-      <Menu.Divider />
-      <Menu.Item key="logout" danger icon={<LogoutOutlined />} onClick={handleLogout}>
-        Logout
-      </Menu.Item>
-    </Menu>
-  );
+    <Menu
+      items={[
+        {
+          key: "profile",
+          icon: <UserOutlined />,
+          label: "Edit Profile",
+          onClick: handleOpenProfileModal, // ✅ Use a function instead of direct state update
+        },
+        {
+          type: "divider",
+        },
+        {
+          key: "logout",
+          icon: <LogoutOutlined />,
+          danger: true,
+          label: "Logout",
+          onClick: handleLogout,
+        },
+      ]}
+    />
+  );  
 
   return (
     <AntLayout style={{ minHeight: "100vh", backgroundColor: "#f4f4f4" }}>

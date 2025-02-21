@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState } from "react";
 import { Modal, Input, Button, Form, message } from "antd";
-import { UserOutlined, MailOutlined } from "@ant-design/icons";
+import { UserOutlined, MailOutlined, LockOutlined } from "@ant-design/icons";
 
 interface ProfileModalProps {
   visible: boolean;
@@ -22,7 +22,7 @@ const ProfileModal: React.FC<ProfileModalProps> = ({ visible, onClose, user, onU
     form.setFieldsValue(user);
   }, [user, form]);
 
-  const handleSave = async (values: { name: string; email: string }) => {
+  const handleSave = async (values: { name: string; email: string; password?: string }) => {
     setLoading(true);
     try {
       const token = localStorage.getItem("token");
@@ -46,7 +46,7 @@ const ProfileModal: React.FC<ProfileModalProps> = ({ visible, onClose, user, onU
       }
 
       const updatedUser = await response.json();
-      onUpdate(updatedUser); // Update the UI
+      onUpdate({ name: updatedUser.name, email: updatedUser.email }); // Update UI
       message.success("Profile updated successfully!");
       onClose();
     } catch (error) {
@@ -66,8 +66,17 @@ const ProfileModal: React.FC<ProfileModalProps> = ({ visible, onClose, user, onU
         <Form.Item name="name" label="Full Name" rules={[{ required: true, message: "Please enter your name!" }]}>
           <Input prefix={<UserOutlined />} />
         </Form.Item>
+
         <Form.Item name="email" label="Email">
           <Input prefix={<MailOutlined />} disabled />
+        </Form.Item>
+
+        <Form.Item
+          name="password"
+          label="New Password"
+          rules={[{ min: 6, message: "Password must be at least 6 characters" }]}
+        >
+          <Input.Password prefix={<LockOutlined />} placeholder="Enter new password" />
         </Form.Item>
       </Form>
     </Modal>
