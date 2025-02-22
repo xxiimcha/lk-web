@@ -2,8 +2,7 @@
 
 import React, { useEffect, useState } from "react";
 import Layout from "@/components/Layout";
-import { Table, Button, Tag, Modal, Input, Spin, message, Descriptions, Image } from "antd";
-import { FiUser, FiFileText, FiClock, FiTag, FiImage } from "react-icons/fi";
+import { Table, Button, Tag, Modal, Spin, message, Descriptions, Image } from "antd";
 import type { ColumnsType } from "antd/es/table";
 
 interface SeedRequest {
@@ -25,7 +24,6 @@ const Requests = () => {
   const [loading, setLoading] = useState(true);
   const [selectedRequest, setSelectedRequest] = useState<SeedRequest | null>(null);
   const [modalType, setModalType] = useState<"view" | "reject" | null>(null);
-  const [rejectReason, setRejectReason] = useState("");
 
   useEffect(() => {
     const fetchRequests = async () => {
@@ -47,10 +45,11 @@ const Requests = () => {
   const updateRequestStatus = async (id: string, status: string, reason?: string) => {
     try {
       const response = await fetch(`/api/seedrequests/${id}`, {
-        method: "PATCH",
+        method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(reason ? { status, reason } : { status }),
       });
+
       if (!response.ok) throw new Error("Failed to update request status");
 
       setRequests((prev) =>
@@ -78,7 +77,6 @@ const Requests = () => {
   const closeModal = () => {
     setModalType(null);
     setSelectedRequest(null);
-    setRejectReason("");
   };
 
   const columns: ColumnsType<SeedRequest> = [
@@ -141,41 +139,34 @@ const Requests = () => {
 
   return (
     <Layout>
-      <div
-        style={{
-          minHeight: "100vh",
-          padding: "20px",
-          backgroundImage: "url('/background.jpg')",
-          backgroundSize: "cover",
-          backgroundPosition: "center",
-          backgroundRepeat: "no-repeat",
-          position: "relative",
-        }}
-      >
-        {/* ✅ Darker overlay for readability */}
-        <div
-          style={{
-            position: "absolute",
-            top: 0,
-            left: 0,
-            width: "100%",
-            height: "100%",
-            backgroundColor: "rgba(0, 0, 0, 0.3)", // ✅ Darker to contrast text
-            backdropFilter: "blur(6px)", // ✅ Adds soft blur effect
-            zIndex: 1,
-          }}
-        ></div>
+      <div style={{
+        minHeight: "100vh",
+        padding: "20px",
+        backgroundImage: "url('/background.jpg')",
+        backgroundSize: "cover",
+        backgroundPosition: "center",
+        backgroundRepeat: "no-repeat",
+        position: "relative",
+      }}>
+        <div style={{
+          position: "absolute",
+          top: 0,
+          left: 0,
+          width: "100%",
+          height: "100%",
+          backgroundColor: "rgba(0, 0, 0, 0.3)",
+          backdropFilter: "blur(6px)",
+          zIndex: 1,
+        }}></div>
 
-        <div
-          style={{
-            backgroundColor: "rgba(255, 255, 255, 0.9)", // ✅ More opacity for content readability
-            boxShadow: "0 5px 15px rgba(0, 0, 0, 0.2)",
-            borderRadius: "10px",
-            padding: "20px",
-            position: "relative",
-            zIndex: 2,
-          }}
-        >
+        <div style={{
+          backgroundColor: "rgba(255, 255, 255, 0.9)",
+          boxShadow: "0 5px 15px rgba(0, 0, 0, 0.2)",
+          borderRadius: "10px",
+          padding: "20px",
+          position: "relative",
+          zIndex: 2,
+        }}>
           <h1 className="text-3xl font-bold text-gray-900 mb-4">Requests</h1>
           <p className="text-gray-600 mb-6">Manage all seed requests submitted by users.</p>
 
@@ -189,27 +180,27 @@ const Requests = () => {
         </div>
       </div>
 
-      {/* View Modal */}
+      {/* ✅ Fixed "View" Modal */}
       <Modal title="Request Details" open={modalType === "view"} onCancel={closeModal} footer={null} centered>
         {selectedRequest && (
           <Descriptions bordered column={1} size="middle">
-            <Descriptions.Item label={<><FiFileText /> Seed Type</>}>
+            <Descriptions.Item label="Seed Type">
               {selectedRequest.seedType}
             </Descriptions.Item>
-            <Descriptions.Item label={<><FiTag /> Status</>}>
+            <Descriptions.Item label="Status">
               <Tag color="blue">{selectedRequest.status.toUpperCase()}</Tag>
             </Descriptions.Item>
-            <Descriptions.Item label={<><FiClock /> Created At</>}>
+            <Descriptions.Item label="Created At">
               {new Date(selectedRequest.createdAt).toLocaleDateString()}
             </Descriptions.Item>
-            <Descriptions.Item label={<><FiUser /> Requested By</>}>
+            <Descriptions.Item label="Requested By">
               {selectedRequest.user?.username || "Unknown"}
             </Descriptions.Item>
             <Descriptions.Item label="Description">
               {selectedRequest.description}
             </Descriptions.Item>
             {selectedRequest.imagePath && (
-              <Descriptions.Item label={<><FiImage /> Image</>}>
+              <Descriptions.Item label="Image">
                 <Image width={200} src={selectedRequest.imagePath} alt="Seed Request" />
               </Descriptions.Item>
             )}
