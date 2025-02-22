@@ -3,19 +3,23 @@ import mongoose from "mongoose";
 import dbConnect from "@/lib/mongodb";
 import SeedRequest from "@/models/SeedRequest";
 
-export function PUT(request: NextRequest, context: { params: { id: string } }) {
+interface Context {
+  params: { id: string };
+}
+
+export function PUT(request: NextRequest, { params }: Context) {
   if (mongoose.connection.readyState === 0) {
     return dbConnect()
-      .then(() => handleUpdate(request, context))
+      .then(() => handleUpdate(request, params))
       .catch((error) =>
         NextResponse.json({ message: "Database connection failed", error: error.message }, { status: 500 })
       );
   }
-  return handleUpdate(request, context);
+  return handleUpdate(request, params);
 }
 
-function handleUpdate(request: NextRequest, context: { params: { id: string } }) {
-  const { id } = context.params;
+function handleUpdate(request: NextRequest, params: { id: string }) {
+  const { id } = params;
 
   if (!id || !mongoose.Types.ObjectId.isValid(id)) {
     return Promise.resolve(NextResponse.json({ message: "Invalid or missing ID" }, { status: 400 }));
