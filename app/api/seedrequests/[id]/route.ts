@@ -57,7 +57,7 @@ export async function PUT(
     }
 
     return NextResponse.json(updatedRequest, { status: 200 });
-  } catch (error: unknown) { // ✅ Explicitly set error as unknown
+  } catch (error: unknown) {
     let errorMessage = "An unknown error occurred";
 
     if (error instanceof Error) { // ✅ Type check for Error object
